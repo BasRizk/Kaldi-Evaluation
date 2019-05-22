@@ -1,3 +1,21 @@
+# Don't track content of these folders
+tests/
+models/
+logs/
+
+# Kaldi Model folders and files
+conf/
+data/
+exp/
+AUTHORS
+LICENSE
+RESULTS.txt
+README-ZAMIA.md
+
+# Zip and tar files
+*.zip
+*.tar.gz
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
