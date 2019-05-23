@@ -23,10 +23,12 @@ import pandas as pd
 import time
 
 
-
-IS_GLOBAL_DIRECTORIES = True
+IS_RECURSIVE_DIRECTORIES = False
+IS_TSV = True
 USING_GPU = False
 VERBOSE = True
+#data_dir = "./tests/librispeech-test"
+data_dir = "./tests/iisys-en"
 # =============================================================================
 # ------------------------Documenting Machine ID
 # =============================================================================
@@ -48,7 +50,6 @@ else:
 # =============================================================================
 # ------------------------------Preparing pathes
 # =============================================================================
-data_dir = "./tests/librispeech-test"
 model_dir = "exp/nnet3_chain/tdnn_f/"
 conf_dir  = "conf"
 ivectors_conf_dir = "conf"
@@ -71,11 +72,15 @@ assert(path.exists(spk2utt_path))
 log_filepath = platform_meta_path  +"/logs_" + localtime + ".txt"
 out_decode_path = path.join(platform_meta_path, "decode.out")
 benchmark_filepath = platform_meta_path  +"/kaldi-asr_benchmark_ " + localtime + ".csv"
-test_directories = prepare_pathes(data_dir, global_dir=IS_GLOBAL_DIRECTORIES)
+test_directories = prepare_pathes(data_dir, recursive = IS_RECURSIVE_DIRECTORIES)
 text_pathes = list()
+text_file_exten = "txt"
+if IS_TSV:
+    text_file_exten = "tsv"
 for d in test_directories:
-    text_pathes.append(prepare_pathes(d, "txt"))
+    text_pathes.append(prepare_pathes(d, text_file_exten, recursive = False))
 text_pathes.sort()  
+
 # =============================================================================
 # ----------------------------- Model Loading 
 # =============================================================================
@@ -119,16 +124,20 @@ log_file.write('ivectors_rspec \n{}\n'.format(ivectors_rspec))
 # =============================================================================
 # ---Running the Kaldi STT Engine by running through the audio files
 # =============================================================================
-
 processed_data = "filename,length(sec),proc_time(sec),wer,actual_text,processed_text\n"
 avg_wer = 0
 avg_proc_time = 0
 current_audio_number = 1
 
 text_pathes = [path for subpathes in text_pathes for path in subpathes]
-audio_transcripts = pd.concat( [ pd.read_csv(text_path, header=None) for text_path in text_pathes] )
-audio_transcripts.sort_values(by = 0)
-audio_transcripts = audio_transcripts[0].str.split(" ", 1, expand = True)
+
+if IS_TSV:
+    audio_transcripts = pd.concat( [ pd.read_csv(text_path, sep='\t', header=None) for text_path in text_pathes] )
+    audio_transcripts.sort_values(by = 0)
+else:
+    audio_transcripts = pd.concat( [ pd.read_csv(text_path, header=None) for text_path in text_pathes] )
+    audio_transcripts.sort_values(by = 0)
+    audio_transcripts = audio_transcripts[0].str.split(" ", 1, expand = True)
 audio_transcripts[1] = audio_transcripts[1].str.lower()
 audio_transcripts = audio_transcripts.set_index(0)[1].to_dict()
 

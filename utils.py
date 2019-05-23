@@ -47,12 +47,12 @@ def gpu_info():
 # ------------------------------Preparing pathes
 ##############################################################################
 
-def prepare_pathes(directory, exten = '', global_dir=False):
+def prepare_pathes(directory, exten = '', recursive=True):
     if not path.isdir(directory):
         print(directory + " is not a directory.")
         return
     updated_pathes = list()
-    if not global_dir:
+    if recursive:
         subdirectories = listdir(directory)
         subdirectories.sort()
         for subdirectory in subdirectories:
