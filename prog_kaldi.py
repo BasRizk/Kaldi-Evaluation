@@ -1,18 +1,27 @@
+#!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
+"""
+Testing performance of Mozilla Deepspeech on different devices
 
+Created on Tue Mar 21 2019
+
+@author: ironbas3
+"""
 from __future__ import print_function
 
 from kaldi.asr import NnetLatticeFasterRecognizer
 from kaldi.decoder import LatticeFasterDecoderOptions
 from kaldi.nnet3 import NnetSimpleComputationOptions
 from kaldi.util.table import SequentialMatrixReader, CompactLatticeWriter
-from os import listdir, path, makedirs
-from jiwer import wer    
-import time
-import platform, os, sys
+from os import path, makedirs
 from utils import cpu_info, gpu_info, prepare_pathes
 from timeit import default_timer as timer
+from jiwer import wer  
+import platform, os, sys
 import soundfile as sf
+import pandas as pd  
+import time
+
 
 
 IS_GLOBAL_DIRECTORIES = True
@@ -39,7 +48,7 @@ else:
 # =============================================================================
 # ------------------------------Preparing pathes
 # =============================================================================
-data_dir = "./librispeech-test"
+data_dir = "./tests/librispeech-test"
 model_dir = "exp/nnet3_chain/tdnn_f/"
 conf_dir  = "conf"
 ivectors_conf_dir = "conf"
@@ -58,7 +67,7 @@ assert(path.exists(scp_path))
 assert(path.exists(ivector_extractor_path))
 assert(path.exists(spk2utt_path))
 
-localtime = time.strftime("%Y%m%d-%H%M%S")
+#localtime = time.strftime("%Y%m%d-%H%M%S")
 log_filepath = platform_meta_path  +"/logs_" + localtime + ".txt"
 out_decode_path = path.join(platform_meta_path, "decode.out")
 benchmark_filepath = platform_meta_path  +"/kaldi-asr_benchmark_ " + localtime + ".csv"
@@ -111,81 +120,59 @@ log_file.write('ivectors_rspec \n{}\n'.format(ivectors_rspec))
 # ---Running the Kaldi STT Engine by running through the audio files
 # =============================================================================
 
-with SequentialMatrixReader(feats_rspec) as f, \
-     SequentialMatrixReader(ivectors_rspec) as i, \
-     open(out_decode_path, "w") as o:
-    for (key, feats), (_, ivectors) in zip(f, i):
-        print('Running inference.', file=sys.stderr)
-        print("\n\n\n KEY =\n" + key)
-        inference_start = timer()
-        out = asr.decode((feats, ivectors))
-        inference_end = timer() - inference_start
-#        print('Inference took %0.3fs for %0.3fs audio file.' % (inference_end, audio_len))
-        print(key, out["text"], file=o)
-
-#lat_dir = path.join(data_dir, "lat.gz")
-#lat_wspec = "ark:| gzip -c > " + lat_dir
-
-## Extract the features, decode and write output lattices
-#with SequentialMatrixReader(feats_rspec) as feats_reader, \
-#     SequentialMatrixReader(ivectors_rspec) as ivectors_reader, \
-#     CompactLatticeWriter(lat_wspec) as lat_writer:
-#    for (fkey, feats), (ikey, ivectors) in zip(feats_reader, ivectors_reader):
-#        assert(fkey == ikey)
-#        out = asr.decode((feats, ivectors))
-#        print(fkey, out["text"])
-#        lat_writer[fkey] = out["lattice"]        
-
-
-# =============================================================================
-# ---Evaluating results
-# =============================================================================
-
-import pandas as pd
-decoded_output = pd.read_csv("decode.out", header=None)
-decoded_output.sort_values(by = 0)
-decoded_output = decoded_output[0].str.split(" ", 1, expand = True)
-decoded_wav_filenames = decoded_output[0]
-decoded_texts = decoded_output[1]
-
-num_of_audiofiles = decoded_wav_filenames.size
 processed_data = "filename,length(sec),proc_time(sec),wer,actual_text,processed_text\n"
 avg_wer = 0
 avg_proc_time = 0
 current_audio_number = 1
-for audio_group, audio_text_group_path in zip(audio_pathes, text_pathes):
-    audio_transcripts = open(audio_text_group_path[0], 'r').readlines()
-    audio_transcripts.sort()
-    for audio_path, audio_transcript in zip(audio_group, audio_transcripts):
+
+text_pathes = [path for subpathes in text_pathes for path in subpathes]
+audio_transcripts = pd.concat( [ pd.read_csv(text_path, header=None) for text_path in text_pathes] )
+audio_transcripts.sort_values(by = 0)
+audio_transcripts = audio_transcripts[0].str.split(" ", 1, expand = True)
+audio_transcripts[1] = audio_transcripts[1].str.lower()
+audio_transcripts = audio_transcripts.set_index(0)[1].to_dict()
+
+
+# =============================================================================
+# ---Running the Kaldi STT Engine by running through the audio files
+# =============================================================================
+
+
+num_of_audiofiles  = 0
+with SequentialMatrixReader(feats_rspec) as f, \
+     SequentialMatrixReader(ivectors_rspec) as i, \
+     open(out_decode_path, "w") as o:
+    for (key, feats), (_, ivectors) in zip(f, i):
         
-        print("\n=> Progress = " + "{0:.2f}".format((current_audio_number/num_of_audiofiles)*100) + "%\n" )
-        current_audio_number+=1
-        
+        audio_path = key
         audio, fs = sf.read(audio_path, dtype='int16')
         audio_len = len(audio)/fs 
-
-        #start_proc = time.time()
-        print('Running inference.', file=sys.stderr)
+        n_input = 2
+        print('Running inference.\n', file=sys.stderr)
         inference_start = timer()
-        processed_text = ds.stt(audio, fs)
+        out = asr.decode((feats, ivectors))
         inference_end = timer() - inference_start
-        print('Inference took %0.3fs for %0.3fs audio file.' % (inference_end, audio_len))
-        #end = time.time()
-       
+        print('Inference took %0.3fs for %0.3fs audio file.\n' % (inference_end, audio_len))
         proc_time = inference_end
         proc_time = round(proc_time,3)
-
-    
+        
         # Processing WORD ERROR RATE (WER)
-        audio_transcript = audio_transcript[:-1].split(" ")
-        actual_text = " ".join(audio_transcript[1:]).lower()
+        processed_text = out['text'].lower()
+        audio_filename = audio_path.split("/")[-1].split(".")[0]
+        actual_text = audio_transcripts.get(audio_filename)
+        if not actual_text:
+            if VERBOSE: 
+                print("# WARNING :: Transcript of file " + audio_filename + " does not exist.\n")
+            log_file.write("# WARNING :: Transcript of file " + audio_filename + " does not exist.\n")
+            continue
+            
+        num_of_audiofiles +=1
         current_wer = wer(actual_text, processed_text, standardize=True)
         current_wer = round(current_wer,3)
         
         # Accumlated data
         avg_proc_time += (proc_time/(audio_len))
         avg_wer += current_wer
-        
         
         audio_path = audio_path.split("/")[-1]
         progress_row = audio_path + "," + str(audio_len) + "," + str(proc_time)  + "," +\
@@ -208,3 +195,42 @@ for audio_group, audio_text_group_path in zip(audio_pathes, text_pathes):
         
                   
         processed_data+= progress_row + "\n"
+        
+        print(key, out["text"], file=o)
+
+#lat_dir = path.join(data_dir, "lat.gz")
+#lat_wspec = "ark:| gzip -c > " + lat_dir
+
+## Extract the features, decode and write output lattices
+#with SequentialMatrixReader(feats_rspec) as feats_reader, \
+#     SequentialMatrixReader(ivectors_rspec) as ivectors_reader, \
+#     CompactLatticeWriter(lat_wspec) as lat_writer:
+#    for (fkey, feats), (ikey, ivectors) in zip(feats_reader, ivectors_reader):
+#        assert(fkey == ikey)
+#        out = asr.decode((feats, ivectors))
+#        print(fkey, out["text"])
+#        lat_writer[fkey] = out["lattice"]        
+
+
+# =============================================================================
+# ---------------Finalizing processed data and Saving Logs
+# =============================================================================
+        
+avg_proc_time /= num_of_audiofiles
+avg_wer /= num_of_audiofiles
+if(VERBOSE):
+    print("Avg. Proc. time (sec/second of audio) = " + str(avg_proc_time) + "\n" +\
+          "Avg. WER = " + str(avg_wer))
+log_file.write("Avg. Proc. time/sec = " + str(avg_proc_time) + "\n" +\
+          "Avg. WER = " + str(avg_wer))
+log_file.close()
+processed_data+= "AvgProcTime (sec/second of audio)," + str(avg_proc_time) + "\n"
+processed_data+= "AvgWER," + str(avg_wer) + "\n"
+
+
+with open(benchmark_filepath, 'w') as f:
+    for line in processed_data:
+        f.write(line)
+    
+        
+        
