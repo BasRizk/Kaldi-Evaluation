@@ -153,7 +153,13 @@ with SequentialMatrixReader(feats_rspec) as f, \
     for (key, feats), (_, ivectors) in zip(f, i):
         
         audio_path = key
-        audio, fs = sf.read(audio_path, dtype='int16')
+        try:
+            audio, fs = sf.read(audio_path, dtype='int16')
+        except:
+            if VERBOSE: 
+                print("# WARNING :: Audio File" + audio_path + " not readable.\n")
+            log_file.write("# WARNING :: Audio File " + audio_path + " not readable.\n")
+            continue
         audio_len = len(audio)/fs 
         n_input = 2
         print('Running inference.\n', file=sys.stderr)
