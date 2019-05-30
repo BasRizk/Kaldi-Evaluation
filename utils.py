@@ -71,7 +71,7 @@ def prepare_pathes(directory, exten = '', recursive=True):
         subdirectories = listdir(directory)
         for subdir in subdirectories:
             subdir = path.join(directory, subdir)
-            if (path.isdir(subdir)):
+            if (path.isdir(subdir) and exten == ''):
                 updated_pathes.append(subdir)
             elif(subdir.endswith(exten) and not exten == ''):
                 updated_pathes.append(subdir)

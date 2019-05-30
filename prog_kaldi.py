@@ -1,4 +1,3 @@
-#!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 """
 Testing performance of Mozilla Deepspeech on different devices
@@ -23,12 +22,12 @@ import pandas as pd
 import time
 
 
-IS_RECURSIVE_DIRECTORIES = False
-IS_TSV = True
+IS_RECURSIVE_DIRECTORIES = True
+IS_TSV = False
 USING_GPU = False
 VERBOSE = True
-#data_dir = "./tests/librispeech-test"
-data_dir = "./tests/iisys-en"
+data_dir = "./tests/LibriSpeech/test-clean"
+#data_dir = "./tests/iisys-en"
 # =============================================================================
 # ------------------------Documenting Machine ID
 # =============================================================================
@@ -132,10 +131,10 @@ current_audio_number = 1
 text_pathes = [path for subpathes in text_pathes for path in subpathes]
 
 if IS_TSV:
-    audio_transcripts = pd.concat( [ pd.read_csv(text_path, sep='\t', header=None) for text_path in text_pathes] )
+    audio_transcripts = pd.concat( [ pd.read_csv(text_path, sep='\t', header=None, engine='python') for text_path in text_pathes] )
     audio_transcripts.sort_values(by = 0)
 else:
-    audio_transcripts = pd.concat( [ pd.read_csv(text_path, header=None) for text_path in text_pathes] )
+    audio_transcripts = pd.concat( [ pd.read_csv(text_path, header=None, engine='python') for text_path in text_pathes] )
     audio_transcripts.sort_values(by = 0)
     audio_transcripts = audio_transcripts[0].str.split(" ", 1, expand = True)
 audio_transcripts[1] = audio_transcripts[1].str.lower()
