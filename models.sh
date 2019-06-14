@@ -4,8 +4,11 @@ wget --no-check-certificate https://goofy.zamia.org/zamia-speech/asr-models/kald
 tar -xzf kaldi-generic-en-tdnn_fl-r20190609.tar.xz
 rm -f kaldi-generic-en-tdnn_fl-r20190609.tar.xz
 
-mv kaldi-generic-en-tdnn_fl-r20190609/README.md README-ZAMIA.md
-mv kaldi-generic-en-tdnn_fl-r20190609/* .
+mkdir MODEL_LICENSE
+mv kaldi-generic-en-tdnn_fl-r20190609/README.md MODEL_LICENSE/README-ZAMIA.md
+mv kaldi-generic-en-tdnn_fl-r20190609/AUTHORS MODEL_LICENSE
+mv kaldi-generic-en-tdnn_fl-r20190609/LICENSE MODEL_LICENSE
+mv kaldi-generic-en-tdnn_fl-r20190609/* .	
 rm -rf kaldi-generic-en-tdnn_fl-r20190609
 
 mkdir -p exp/nnet3_chain
