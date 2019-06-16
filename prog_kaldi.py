@@ -26,14 +26,49 @@ IS_RECURSIVE_DIRECTORIES = True
 IS_TSV = False
 USING_GPU = False
 VERBOSE = True
-data_dir = "./tests/LibriSpeech/test-clean"
-#data_dir = "./tests/iisys-en"
+TEST_PATH = "tests/LibriSpeech/test-clean"
+#data_dir = "tests/iisys-en"
+assert(path.exists(TEST_PATH))
+
+try:
+    TEST_CORPUS = TEST_PATH.split("/")[1]
+except:
+    print("WARNING: Path 2nd index does not exist.\n")
+
+if  TEST_CORPUS == "iisys":
+    IS_TSV = True
+    IS_RECURSIVE_DIRECTORIES = False
+else:
+    IS_TSV = False
+    IS_RECURSIVE_DIRECTORIES = True
+    
+if IS_TSV:
+    TS_INPUT = "tsv"
+    AUDIO_INPUT = "wav"
+else:
+    TS_INPUT = "txt"
+    AUDIO_INPUT = "flac"
+
+try:
+    if TEST_PATH.split("/")[2] == "Sprecher":
+        AUDIO_INPUT="flac"
+except:
+    print("WARNING: Path 3rd index does not exist.\n")
+
 # =============================================================================
 # ------------------------Documenting Machine ID
 # =============================================================================
 localtime = time.strftime("%Y%m%d-%H%M%S")
 platform_id = platform.machine() + "_" + platform.system() + "_" +\
                 platform.node() + "_" + localtime
+                
+                
+if USING_GPU:
+    platform_id += "_use_gpu"
+
+if TEST_CORPUS:
+    platform_id = TEST_CORPUS + "_" + platform_id
+
 platform_meta_path = "logs/" + platform_id
 
 if not path.exists(platform_meta_path):
@@ -56,9 +91,9 @@ model_path = path.join(model_dir, "final.mdl")
 graph_path = path.join(model_dir, "graph/HCLG.fst")
 symbols_path = path.join(model_dir, "graph/words.txt")
 mfcc_hires_path = path.join(conf_dir, "mfcc_hires.conf")
-scp_path = path.join(data_dir, "wav.scp")
+scp_path = path.join(TEST_PATH, "wav.scp")
 ivector_extractor_path = path.join(ivectors_conf_dir,"ivector_extractor.conf")
-spk2utt_path = path.join(data_dir, "spk2utt")
+spk2utt_path = path.join(TEST_PATH, "spk2utt")
 assert(path.exists(model_path))
 assert(path.exists(graph_path))
 assert(path.exists(symbols_path))
@@ -71,7 +106,7 @@ assert(path.exists(spk2utt_path))
 log_filepath = platform_meta_path  +"/logs_" + localtime + ".txt"
 out_decode_path = path.join(platform_meta_path, "decode.out")
 benchmark_filepath = platform_meta_path  +"/kaldi-asr_benchmark_ " + localtime + ".csv"
-test_directories = prepare_pathes(data_dir, recursive = IS_RECURSIVE_DIRECTORIES)
+test_directories = prepare_pathes(TEST_PATH, recursive = IS_RECURSIVE_DIRECTORIES)
 text_pathes = list()
 text_file_exten = "txt"
 if IS_TSV:
