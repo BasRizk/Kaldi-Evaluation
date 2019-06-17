@@ -26,8 +26,8 @@ IS_RECURSIVE_DIRECTORIES = True
 IS_TSV = False
 USING_GPU = False
 VERBOSE = True
-TEST_PATH = "tests/LibriSpeech/test-clean"
-#data_dir = "tests/iisys-en"
+#TEST_PATH = "tests/iisys/test-clean"
+TEST_PATH = "tests/iisys"
 assert(path.exists(TEST_PATH))
 
 try:
@@ -84,7 +84,10 @@ model_path = path.join(model_dir, "final.mdl")
 graph_path = path.join(model_dir, "graph/HCLG.fst")
 symbols_path = path.join(model_dir, "graph/words.txt")
 mfcc_hires_path = path.join(conf_dir, "mfcc_hires.conf")
-TEST_PATH_CUT = "/".join(TEST_PATH.split("/")[:-1])
+if IS_RECURSIVE_DIRECTORIES:
+    TEST_PATH_CUT = "/".join(TEST_PATH.split("/")[:-1])
+else:
+    TEST_PATH_CUT = TEST_PATH
 scp_path = path.join(TEST_PATH_CUT, "wav.scp")
 ivector_extractor_path = path.join(ivectors_conf_dir,"ivector_extractor.conf")
 spk2utt_path = path.join(TEST_PATH_CUT,"spk2utt")
