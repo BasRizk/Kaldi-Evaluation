@@ -22,12 +22,17 @@ import pandas as pd
 import time
 
 
+
 IS_RECURSIVE_DIRECTORIES = True
 IS_TSV = False
-USING_GPU = False
+USING_GPU = True
+if USING_GPU:
+    from kaldi import cudamatrix
+    print("Using GPU support.")
+    cudamatrix.CuDevice.instantiate().select_gpu_id("yes")
 VERBOSE = True
-#TEST_PATH = "tests/iisys/test-clean"
-TEST_PATH = "tests/iisys"
+TEST_PATH = "tests/LibriSpeech/test-clean"
+#TEST_PATH = "tests/iisys"
 assert(path.exists(TEST_PATH))
 
 try:
