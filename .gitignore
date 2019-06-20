@@ -14,6 +14,7 @@ README-ZAMIA.md
 # Zip and tar files
 *.zip
 *.tar.gz
+*.tar.xz
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
