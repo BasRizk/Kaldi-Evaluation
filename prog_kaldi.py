@@ -25,7 +25,7 @@ import time
 
 IS_RECURSIVE_DIRECTORIES = True
 IS_TSV = False
-USING_GPU = True
+USING_GPU = False
 if USING_GPU:
     from kaldi import cudamatrix
     print("Using GPU support.")
