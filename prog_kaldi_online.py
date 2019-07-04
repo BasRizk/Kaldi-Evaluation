@@ -29,9 +29,15 @@ import time
 IS_RECURSIVE_DIRECTORIES = True
 IS_TSV = False
 USING_GPU = False
+if USING_GPU:
+    from kaldi import cudamatrix
+    print("Using GPU support.")
+    cudamatrix.CuDevice.instantiate().select_gpu_id("yes")
 VERBOSE = True
-TEST_PATH = "tests/LibriSpeech/test-clean"
-#data_dir = "tests/iisys-en"
+
+#TEST_PATH = "tests/LibriSpeech_test-clean/test-clean"
+TEST_PATH = "tests/LibriSpeech_test-other/test-other"
+#TEST_PATH = "tests/iisys"
 assert(path.exists(TEST_PATH))
 
 try:
@@ -45,13 +51,6 @@ if  TEST_CORPUS == "iisys":
 else:
     IS_TSV = False
     IS_RECURSIVE_DIRECTORIES = True
-    
-if IS_TSV:
-    TS_INPUT = "tsv"
-    AUDIO_INPUT = "wav"
-else:
-    TS_INPUT = "txt"
-    AUDIO_INPUT = "flac"
 
 try:
     if TEST_PATH.split("/")[2] == "Sprecher":
@@ -73,8 +72,7 @@ if USING_GPU:
 if TEST_CORPUS:
     platform_id = TEST_CORPUS + "_" + platform_id
 
-platform_id = "Online_" + platform_id
-platform_meta_path = "logs/" + platform_id
+platform_meta_path = "logs/online/" + platform_id
 
 if not path.exists(platform_meta_path):
     makedirs(platform_meta_path)
@@ -96,9 +94,13 @@ model_path = path.join(model_dir, "final.mdl")
 graph_path = path.join(model_dir, "graph/HCLG.fst")
 symbols_path = path.join(model_dir, "graph/words.txt")
 mfcc_hires_path = path.join(conf_dir, "mfcc_hires.conf")
-scp_path = path.join(TEST_PATH, "wav.scp")
+if IS_RECURSIVE_DIRECTORIES:
+    TEST_PATH_CUT = "/".join(TEST_PATH.split("/")[:-1])
+else:
+    TEST_PATH_CUT = TEST_PATH
+scp_path = path.join(TEST_PATH_CUT, "wav.scp")
 ivector_extractor_path = path.join(ivectors_conf_dir,"ivector_extractor.conf")
-spk2utt_path = path.join(TEST_PATH, "spk2utt")
+spk2utt_path = path.join(TEST_PATH_CUT,"spk2utt")
 assert(path.exists(model_path))
 assert(path.exists(graph_path))
 assert(path.exists(symbols_path))
@@ -119,7 +121,6 @@ if IS_TSV:
 for d in test_directories:
     text_pathes.append(prepare_pathes(d, text_file_exten, recursive = False))
 text_pathes.sort()  
-
 
 # =============================================================================
 # ----------------------------- Model Loading 
