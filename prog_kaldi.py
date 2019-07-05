@@ -25,7 +25,7 @@ import time
 
 IS_RECURSIVE_DIRECTORIES = True
 IS_TSV = False
-USING_GPU = True
+USING_GPU = False
 if USING_GPU:
     from kaldi import cudamatrix
     print("Using GPU support.")
@@ -33,8 +33,8 @@ if USING_GPU:
 VERBOSE = True
 
 #TEST_PATH = "tests/LibriSpeech_test-clean/test-clean"
-TEST_PATH = "tests/LibriSpeech_test-other/test-other"
-#TEST_PATH = "tests/iisys"
+#TEST_PATH = "tests/LibriSpeech_test-other/test-other"
+TEST_PATH = "tests/iisys"
 assert(path.exists(TEST_PATH))
 
 try:
@@ -198,6 +198,7 @@ with SequentialMatrixReader(feats_rspec) as f, \
             if VERBOSE: 
                 print("# WARNING :: Audio File" + audio_path + " not readable.\n")
             log_file.write("# WARNING :: Audio File " + audio_path + " not readable.\n")
+            #break
             continue
         audio_len = len(audio)/fs 
         n_input = 2
@@ -232,14 +233,16 @@ with SequentialMatrixReader(feats_rspec) as f, \
                         str(current_wer) + "," + actual_text + "," + processed_text
                          
         if(VERBOSE):
-            print("# File (" + audio_path + "):\n" +\
+            print("# Audio number " + str(num_of_audiofiles) + "\n" +\
+		  "# File (" + audio_path + "):\n" +\
                   "# - " + str(audio_len) + " seconds long.\n"+\
                   "# - actual    text: '" + actual_text + "'\n" +\
                   "# - processed text: '" + processed_text + "'\n" +\
                   "# - processed in "  + str(proc_time) + " seconds.\n"
                   "# - WER = "  + str(current_wer) + "\n")
                   
-        log_file.write("# File (" + audio_path + "):\n" +\
+        log_file.write("# Audio number " + str(num_of_audiofiles) + "\n" +\
+	      "# File (" + audio_path + "):\n" +\
               "# - " + str(audio_len) + " seconds long.\n"+\
               "# - actual    text: '" + actual_text + "'\n" +\
               "# - processed text: '" + processed_text + "'\n" +\
@@ -248,7 +251,7 @@ with SequentialMatrixReader(feats_rspec) as f, \
         
                   
         processed_data+= progress_row + "\n"
-        
+
         print(key, out["text"], file=o)
 
 #lat_dir = path.join(data_dir, "lat.gz")
