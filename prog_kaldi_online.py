@@ -35,8 +35,8 @@ if USING_GPU:
     cudamatrix.CuDevice.instantiate().select_gpu_id("yes")
 VERBOSE = True
 
-#TEST_PATH = "tests/LibriSpeech_test-clean/test-clean"
-TEST_PATH = "tests/LibriSpeech_test-other/test-other"
+TEST_PATH = "tests/LibriSpeech_test-clean/test-clean"
+#TEST_PATH = "tests/LibriSpeech_test-other/test-other"
 #TEST_PATH = "tests/iisys"
 assert(path.exists(TEST_PATH))
 
@@ -94,6 +94,7 @@ model_path = path.join(model_dir, "final.mdl")
 graph_path = path.join(model_dir, "graph/HCLG.fst")
 symbols_path = path.join(model_dir, "graph/words.txt")
 mfcc_hires_path = path.join(conf_dir, "mfcc_hires.conf")
+online_config_path = path.join(conf_dir, "online_cmvn.conf")
 if IS_RECURSIVE_DIRECTORIES:
     TEST_PATH_CUT = "/".join(TEST_PATH.split("/")[:-1])
 else:
@@ -105,6 +106,7 @@ assert(path.exists(model_path))
 assert(path.exists(graph_path))
 assert(path.exists(symbols_path))
 assert(path.exists(mfcc_hires_path))
+assert(path.exists(online_config_path))
 assert(path.exists(scp_path))
 assert(path.exists(ivector_extractor_path))
 assert(path.exists(spk2utt_path))
@@ -130,12 +132,17 @@ log_file = open(log_filepath, "w")
 chunk_size = 1440
 
 # Define online feature pipeline
+#feats_args = "--mfcc-config="  + mfcc_hires_path + " " +\
+#                    "--ivector-extraction-config=" + ivector_extractor_path +\
+#                    "-verbose=1"
+
+                
 feat_opts = OnlineNnetFeaturePipelineConfig()
 endpoint_opts = OnlineEndpointConfig()
 po = ParseOptions("")
 feat_opts.register(po)
 endpoint_opts.register(po)
-po.read_config_file("online.conf")
+po.read_config_file(online_config_path)
 feat_info = OnlineNnetFeaturePipelineInfo.from_config(feat_opts)
 
 
