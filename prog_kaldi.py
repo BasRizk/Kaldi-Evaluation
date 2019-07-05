@@ -201,7 +201,6 @@ with SequentialMatrixReader(feats_rspec) as f, \
             #break
             continue
         audio_len = len(audio)/fs 
-        n_input = 2
         print('Running inference.\n', file=sys.stderr)
         inference_start = timer()
         out = asr.decode((feats, ivectors))

@@ -35,8 +35,8 @@ if USING_GPU:
     cudamatrix.CuDevice.instantiate().select_gpu_id("yes")
 VERBOSE = True
 
-TEST_PATH = "tests/LibriSpeech_test-clean/test-clean"
-#TEST_PATH = "tests/LibriSpeech_test-other/test-other"
+#TEST_PATH = "tests/LibriSpeech_test-clean/test-clean"
+TEST_PATH = "tests/LibriSpeech_test-other/test-other"
 #TEST_PATH = "tests/iisys"
 assert(path.exists(TEST_PATH))
 
@@ -222,7 +222,6 @@ for key, wav in SequentialWaveReader("scp:" + scp_path):
         log_file.write("# WARNING :: Audio File " + audio_path + " not readable.\n")
         continue
     audio_len = len(audio)/fs 
-    n_input = 2
     print('Running inference.\n', file=sys.stderr)
     inference_start = timer()
     out = asr.decode()
@@ -254,14 +253,16 @@ for key, wav in SequentialWaveReader("scp:" + scp_path):
                     str(current_wer) + "," + actual_text + "," + processed_text
                      
     if(VERBOSE):
-        print("# File (" + audio_path + "):\n" +\
+        print("# Audio number " + str(num_of_audiofiles) + "\n" +\
+		  "# File (" + audio_path + "):\n" +\
               "# - " + str(audio_len) + " seconds long.\n"+\
               "# - actual    text: '" + actual_text + "'\n" +\
               "# - processed text: '" + processed_text + "'\n" +\
               "# - processed in "  + str(proc_time) + " seconds.\n"
               "# - WER = "  + str(current_wer) + "\n")
               
-    log_file.write("# File (" + audio_path + "):\n" +\
+    log_file.write("# Audio number " + str(num_of_audiofiles) + "\n" +\
+	      "# File (" + audio_path + "):\n" +\
           "# - " + str(audio_len) + " seconds long.\n"+\
           "# - actual    text: '" + actual_text + "'\n" +\
           "# - processed text: '" + processed_text + "'\n" +\
