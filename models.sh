@@ -11,6 +11,7 @@ mkdir MODEL_LICENSE
 mv kaldi-generic-en-tdnn_fl-r20190609/README.md MODEL_LICENSE/README-ZAMIA.md
 mv kaldi-generic-en-tdnn_fl-r20190609/AUTHORS MODEL_LICENSE
 mv kaldi-generic-en-tdnn_fl-r20190609/LICENSE MODEL_LICENSE
+mv kaldi-generic-en-tdnn_fl-r20190609/RESULTS.txt MODEL_LICENSE
 mv kaldi-generic-en-tdnn_fl-r20190609/* .	
 rm -rf kaldi-generic-en-tdnn_fl-r20190609
 
