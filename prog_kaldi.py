@@ -25,15 +25,15 @@ import time
 
 IS_RECURSIVE_DIRECTORIES = True
 IS_TSV = False
-USING_GPU = True
+USING_GPU = False
 if USING_GPU:
     from kaldi import cudamatrix
     print("Using GPU support.")
     cudamatrix.CuDevice.instantiate().select_gpu_id("yes")
 VERBOSE = True
 
-#TEST_PATH = "tests/LibriSpeech_test-clean/test-clean"
-TEST_PATH = "tests/LibriSpeech_test-other/test-other"
+TEST_PATH = "tests/LibriSpeech_test-clean/test-clean"
+#TEST_PATH = "tests/LibriSpeech_test-other/test-other"
 #TEST_PATH = "tests/iisys"
 assert(path.exists(TEST_PATH))
 
