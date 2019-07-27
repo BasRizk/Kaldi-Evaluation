@@ -113,6 +113,7 @@ assert(path.exists(spk2utt_path))
 
 #localtime = time.strftime("%Y%m%d-%H%M%S")
 log_filepath = platform_meta_path  +"/logs_" + localtime + ".txt"
+summ_filepath = platform_meta_path  +"/summ_" + localtime + ".txt"
 out_decode_path = path.join(platform_meta_path, "decode.out")
 benchmark_filepath = platform_meta_path  +"/kaldi-asr_benchmark_ " + localtime + ".csv"
 test_directories = prepare_pathes(TEST_PATH, recursive = IS_RECURSIVE_DIRECTORIES)
@@ -128,6 +129,7 @@ text_pathes.sort()
 # ----------------------------- Model Loading 
 # =============================================================================
 log_file = open(log_filepath, "w")
+summ_file = open(summ_filepath, "w")
 
 chunk_size = 1440
 
@@ -170,6 +172,7 @@ inf_model_load_end = timer() - inf_model_load_start
 print('Loaded inference model in {:.3}s.\n'.format(inf_model_load_end),
       file=sys.stderr)
 log_file.write('Loaded inference model in {:.3}s.\n'.format(inf_model_load_end))
+summ_file.write('Loaded inference model in, {:.3}\n'.format(inf_model_load_end))
 #
 ## Define feature pipelines as Kaldi rspecifiers
 #feats_rspec = (
@@ -378,7 +381,10 @@ if(VERBOSE):
           "Avg. WER = " + str(avg_wer))
 log_file.write("Avg. Proc. time/sec = " + str(avg_proc_time) + "\n" +\
           "Avg. WER = " + str(avg_wer))
+summ_file.write("Avg. Proc. time/sec," + str(avg_proc_time) + "\n" +\
+          "Avg. WER," + str(avg_wer))
 log_file.close()
+summ_file.close()
 processed_data+= "AvgProcTime (sec/second of audio)," + str(avg_proc_time) + "\n"
 processed_data+= "AvgWER," + str(avg_wer) + "\n"
 

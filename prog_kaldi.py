@@ -33,8 +33,8 @@ if USING_GPU:
 VERBOSE = True
 
 #TEST_PATH = "tests/LibriSpeech_test-clean/test-clean"
-#TEST_PATH = "tests/LibriSpeech_test-other/test-other"
-TEST_PATH = "tests/iisys"
+TEST_PATH = "tests/LibriSpeech_test-other/test-other"
+#TEST_PATH = "tests/iisys"
 assert(path.exists(TEST_PATH))
 
 try:
