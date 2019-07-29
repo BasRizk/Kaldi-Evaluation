@@ -1,0 +1,3 @@
+Loaded inference model in, 1.98
+Avg. Proc. time/sec,0.2853101204380141
+Avg. WER,0.16827012345678927
