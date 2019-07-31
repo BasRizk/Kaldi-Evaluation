@@ -1,0 +1,9 @@
+Loading inference model from files
+ exp/nnet3_chain/tdnn_f/final.mdl 
+ exp/nnet3_chain/tdnn_f/graph/HCLG.fst 
+ exp/nnet3_chain/tdnn_f/graph/words.txt
+Loaded inference model in 23.2s.
+feat_rspec 
+ark:compute-mfcc-feats --config=conf/mfcc_hires.conf scp:tests/LibriSpeech_test-clean/wav.scp ark:- |
+ivectors_rspec 
+ark:compute-mfcc-feats --config=conf/mfcc_hires.conf scp:tests/LibriSpeech_test-clean/wav.scp ark:- |ivector-extract-online2 --config=conf/ivector_extractor.conf ark:tests/LibriSpeech_test-clean/spk2utt ark:- ark:- |

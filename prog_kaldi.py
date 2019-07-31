@@ -69,7 +69,7 @@ if USING_GPU:
 if TEST_CORPUS:
     platform_id = TEST_CORPUS + "_" + platform_id
 
-platform_meta_path = "logs/" + platform_id
+platform_meta_path = "logs/offline/" + platform_id
 
 if not path.exists(platform_meta_path):
     makedirs(platform_meta_path)

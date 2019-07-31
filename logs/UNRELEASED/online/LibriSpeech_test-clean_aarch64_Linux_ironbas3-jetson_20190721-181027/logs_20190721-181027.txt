@@ -1,0 +1,5 @@
+Loading inference model from files
+ exp/nnet3_chain/tdnn_f/final.mdl 
+ exp/nnet3_chain/tdnn_f/graph/HCLG.fst 
+ exp/nnet3_chain/tdnn_f/graph/words.txt
+Loaded inference model in 23.2s.
